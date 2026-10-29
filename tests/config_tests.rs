@@ -213,9 +213,10 @@ fn test_clean_requires_exactly_one_selection() {
 
 #[test]
 fn test_unregistered_check_cannot_report_success() {
+    let platform = std::env::consts::OS;
     rejected(
         VALID,
-        &["check", "--platform", "linux"],
+        &["check", "--platform", platform],
         "source project has no Cargo.toml",
     );
 }

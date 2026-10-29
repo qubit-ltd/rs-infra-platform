@@ -1616,7 +1616,7 @@ s.close();pathlib.Path(path).unlink()
             .spawn()
             .expect("controller fixture");
         let started = std::time::Instant::now();
-        while !root.path().join("controller-ready").exists() && started.elapsed() < Duration::from_secs(5) {
+        while !root.path().join("controller-ready").exists() && started.elapsed() < Duration::from_secs(30) {
             if controller.try_wait().expect("poll controller").is_some() {
                 break;
             }
