@@ -1,0 +1,7 @@
+{
+  "thresholds": {
+    "lines": 85,
+    "functions": 90,
+    "regions": 82
+  }
+}
