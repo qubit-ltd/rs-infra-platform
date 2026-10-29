@@ -26,6 +26,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87
         with:
           toolchain: 1.94.0
+      - name: Use canonical temporary directory on macOS
+        if: runner.os == 'macOS'
+        run: echo "TMPDIR=$(python3 -c 'import os; print(os.path.realpath(os.environ["RUNNER_TEMP"]))')" >> "$GITHUB_ENV"
       - name: Build the current source
         run: cargo build --locked --bin rs-infra-platform
       - name: Check this crate
