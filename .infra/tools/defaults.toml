@@ -1,0 +1,4 @@
+build_toolchain = "1.94.0"
+clippy_toolchain = "nightly-2026-06-05"
+nightly_toolchain = "nightly-2026-06-05"
+fuzz_version = "0.13.2"

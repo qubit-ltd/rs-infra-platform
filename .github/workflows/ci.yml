@@ -1,0 +1,55 @@
+name: Rust CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  native:
+    name: Native / ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87
+        with:
+          toolchain: 1.94.0
+      - name: Build the current source
+        run: cargo build --locked --bin rs-infra-platform
+      - name: Check this crate
+        run: cargo check --locked --all-targets --all-features
+      - name: Test this crate and its executor fixtures
+        run: cargo test --locked --all-targets --all-features
+      - name: Test documentation
+        run: cargo test --locked --doc --all-features
+      - name: CLI smoke
+        run: cargo run --locked --bin rs-infra-platform -- --help
+
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87
+        with:
+          toolchain: nightly-2026-06-05
+          components: rustfmt, clippy
+      - name: Check formatting
+        run: cargo +nightly-2026-06-05 fmt --all -- --check --config-path .infra/style/rustfmt.toml
+      - name: Clippy
+        run: cargo +nightly-2026-06-05 clippy --locked --all-targets --all-features -- -D warnings
+      - name: Rustdoc
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: cargo +nightly-2026-06-05 doc --locked --no-deps --all-features

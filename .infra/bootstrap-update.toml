@@ -1,0 +1,1 @@
+profiles = ["ci-default", "cargo-matrix-default", "local-path-dependencies-default", "pages-default", "style-exceptions-default"]

@@ -1,0 +1,16 @@
+format = 1
+
+[[exceptions]]
+rule = "test-redirect"
+path = "tests/run_store_tests.rs"
+reason = "This integration test target imports shared storage fixtures required by multiple test targets."
+
+[[exceptions]]
+rule = "test-redirect"
+path = "tests/cleanup_policy_tests.rs"
+reason = "This integration test target imports shared storage fixtures required by multiple test targets."
+
+[[exceptions]]
+rule = "test-redirect"
+path = "tests/snapshot_tests.rs"
+reason = "This integration test target imports shared storage fixtures required by multiple test targets."

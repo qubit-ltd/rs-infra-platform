@@ -1,0 +1,10 @@
+tasks = ["style", "clippy", "coverage-cfg-clippy", "verify", "strict-doc", "readme", "release-build", "feature-matrix", "project-hook", "package", "coverage", "audit"]
+
+[local]
+fuzz_mode = "smoke"
+fuzz_seconds_per_target = 10
+fuzz_max_len = 4096
+coverage_cfg_clippy = false
+audit_cached_fallback = true
+matrix = ".infra/ci/cargo-matrix.json"
+hook = ".infra/bin/project-ci-check.sh"
