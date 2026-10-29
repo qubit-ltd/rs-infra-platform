@@ -8,8 +8,8 @@
 //! Backend implementations for native and guest environments.
 
 pub(crate) mod android;
-mod backend;
+mod contract;
 pub(crate) mod native;
 pub(crate) mod windows;
 
-pub(crate) use backend::Backend;
+pub(crate) use contract::Backend;
