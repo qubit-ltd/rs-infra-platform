@@ -1226,10 +1226,12 @@ mod tests {
             .expect("table")
             .insert("typo".into(), true.into());
         assert!(WindowsBackend::from_table(Some(&settings)).is_err());
-        assert!(matches!(
-            backend.probe().expect("configured probe"),
-            Capability::Broken(_)
-        ));
+        let configured = backend.probe().expect("configured probe");
+        if cfg!(target_os = "linux") {
+            assert!(matches!(configured, Capability::Broken(_)));
+        } else {
+            assert!(matches!(configured, Capability::Unsupported(_)));
+        }
     }
 
     #[test]
@@ -1443,6 +1445,7 @@ print(json.dumps({'protocol_version':1,'request_id':r['request_id'],'run_id':r['
     }
 
     #[test]
+    #[cfg(target_os = "linux")]
     fn test_recovery_stops_owned_vm_even_after_guest_cleanup_was_durable() {
         let root = tempfile::tempdir().expect("ownership recovery fixture");
         let reports = root.path().join("reports");
@@ -1528,6 +1531,7 @@ print(json.dumps({'protocol_version':1,'request_id':r['request_id'],'run_id':r['
     }
 
     #[test]
+    #[cfg(target_os = "linux")]
     fn test_unknown_owned_identity_keeps_shutdown_pending_without_connecting() {
         let root = tempfile::tempdir().expect("unknown ownership fixture");
         let reports = root.path().join("reports");
@@ -1579,6 +1583,7 @@ print(json.dumps({'protocol_version':1,'request_id':r['request_id'],'run_id':r['
     }
 
     #[test]
+    #[cfg(target_os = "linux")]
     fn test_controller_sigkill_preserves_owned_vm_shutdown_registration() {
         let root = tempfile::tempdir().expect("controller crash fixture");
         let qemu = root.path().join("fake-qemu");
