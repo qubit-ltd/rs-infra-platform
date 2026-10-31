@@ -693,8 +693,16 @@ sys.exit(subprocess.call(runner+['/bin/sh','-c',script]))
         runner.wait().expect("reap interrupted runner");
         let heartbeat = invocation.join("tmp/heartbeat");
         let before = fs::metadata(&heartbeat).expect("active heartbeat").len();
-        std::thread::sleep(std::time::Duration::from_millis(80));
-        assert!(fs::metadata(&heartbeat).expect("surviving device test").len() > before);
+        let heartbeat_deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+        let heartbeat_survived = loop {
+            if fs::metadata(&heartbeat).is_ok_and(|metadata| metadata.len() > before) {
+                break true;
+            }
+            if std::time::Instant::now() >= heartbeat_deadline {
+                break false;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        };
         let record_path = fixture.root.path().join("store/records").join(format!("{id}.json"));
         let mut record: serde_json::Value =
             serde_json::from_slice(&fs::read(&record_path).expect("record")).expect("record JSON");
@@ -736,6 +744,10 @@ sys.exit(subprocess.call(runner+['/bin/sh','-c',script]))
             .output()
             .expect("fixture cancellation");
         assert!(rescue.status.success(), "{}", String::from_utf8_lossy(&rescue.stderr));
+        assert!(
+            heartbeat_survived,
+            "device test should survive host runner interruption"
+        );
         if let Some((success, pending)) = disconnected {
             assert!(!success, "disconnected recovery cannot prove test stop");
             assert_eq!(pending["state"], "cleanup-pending");
