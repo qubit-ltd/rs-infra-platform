@@ -45,16 +45,6 @@ if ! "$python_cmd" -c 'import sys; raise SystemExit(sys.version_info < (3, 10))'
     exit 2
 fi
 
-configs_only=false
-if [[ -d "$project_root/.infra" && -f "$project_root/Cargo.toml" ]] && awk '
-    $0 == "[package]" { package_section = 1; next }
-    /^\[/ { package_section = 0 }
-    package_section && $0 ~ /^[[:space:]]*name[[:space:]]*=[[:space:]]*"qubit-infra-tools"[[:space:]]*$/ { found = 1 }
-    END { exit !found }
-' "$project_root/Cargo.toml"; then
-    configs_only=true
-fi
-
 if [[ "$mode" == check ]]; then
     if [[ ! -d "$project_root/.infra" ]]; then
         echo "error: infrastructure is not initialized; run ./update-infra.sh first" >&2
@@ -72,9 +62,6 @@ if [[ -d "$project_root/.infra" ]]; then
         exit 1
     }
     update_args=()
-    if [[ "$configs_only" == true ]]; then
-        update_args+=(--configs-only)
-    fi
     case "$mode" in
         dry-run) update_args+=(--dry-run) ;;
         status) update_args+=(--status) ;;
