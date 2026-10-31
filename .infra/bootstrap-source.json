@@ -1,7 +1,7 @@
 {
   "config_sources": {
     "rs-infra-ci": "sha256:2cc68b5ab050769382d7e9af468cb60b2261fb8e387d0ced9974c8d068964271",
-    "rs-infra-dependency": "sha256:90c051bc7d26ef9744e332cc8e0a02fea415933f5d765643d53ae02a9ad4d40d",
+    "rs-infra-dependency": "sha256:c27912fbb157885d337bc7763ab7af4e51200a01014a3036e53ffb76ef0b58ce",
     "rs-infra-style": "sha256:f5ebba934dfcd04bb4b7a3847f27b8a73dcab28afbfe7cb2a9c2e884ebc4564c",
     "rs-infra-tools": "sha256:b52fdcc1a8382533f3f5f56d0f458fca1e30baa853f6acb394d913ec32972166"
   },
@@ -9,6 +9,14 @@
     ".infra/bin/align-ci.sh": {
       "executable": true,
       "sha256": "591c4848115d8d51f5fe52b5ec3f2f822f0b2024bd3c3250df8ba928120822af"
+    },
+    ".infra/bin/bootstrap-update.sh": {
+      "executable": true,
+      "sha256": "89c4d73df6915e0575f1e4d9bcf6f94b29d77b8aa4dd9151977a7e263996ab11"
+    },
+    ".infra/bin/cargo-update.sh": {
+      "executable": true,
+      "sha256": "59e802477aaa12792c103b6bee39620ce1c825cecccc3c535456d61a2a8e8d0a"
     },
     ".infra/bin/ci-check.sh": {
       "executable": true,
@@ -40,7 +48,7 @@
     },
     ".infra/bin/update-dependencies-by-prefix.sh": {
       "executable": true,
-      "sha256": "2a4d1d0e3b8679cde9ee9523721b142776232e7472d1bad6008d27429b46a19b"
+      "sha256": "d4ac94580d20a0c25daa76056665f0a2a9562e0699c64e9594a556d1357bb5dc"
     },
     ".infra/bootstrap-check.py": {
       "executable": true,
@@ -48,7 +56,7 @@
     },
     ".infra/bootstrap.sh": {
       "executable": true,
-      "sha256": "661e466a2f87ffc125ed23c14b01ed5001c335d7dd64ab7cae719ab468c014b9"
+      "sha256": "6131691e74a841974d404d1ee572194acdb31f40cdf0d499cb4050c8beba8a6c"
     },
     ".infra/ci/cargo-matrix.json": {
       "executable": false,
@@ -80,19 +88,23 @@
     },
     ".infra/dependency/policy/baselines/v2026.10.26.txt": {
       "executable": false,
-      "sha256": "311599e492e8c435b4822517ec412319d3f0bfe3e82f93a9261f100c1feda674"
+      "sha256": "950e25b86bf2fa395cca7e635fca4418fc7e4f0757c7c9b56a0365c980414ea0"
+    },
+    ".infra/dependency/policy/baselines/v2026.10.27.txt": {
+      "executable": false,
+      "sha256": "cc229dc5b06d4040d54bf61c2a49b6822804c490e4e642ccd52233beed62b6da"
+    },
+    ".infra/dependency/policy/baselines/v2026.10.29.txt": {
+      "executable": false,
+      "sha256": "950e25b86bf2fa395cca7e635fca4418fc7e4f0757c7c9b56a0365c980414ea0"
     },
     ".infra/dependency/policy/current.toml": {
       "executable": false,
-      "sha256": "b71e552b287ae37d7143a235481468d99d76829bc0793c3bf1788d48b38d6fa6"
+      "sha256": "96365a19ef22846986e1e44dc60539e78d314e2e01c02758f66796762a99faf7"
     },
     ".infra/pages/pages.json": {
       "executable": false,
       "sha256": "0464afed8ddf2e1634e08fa67415ae75b449e5c7befb0f09f4a037800bae05d3"
-    },
-    ".infra/style/exceptions.toml": {
-      "executable": false,
-      "sha256": "a1af1bccf46862c1ce45d1064094b00a0808329540e06a44bcedd8c921849f1e"
     },
     ".infra/style/rustfmt.toml": {
       "executable": false,
@@ -104,11 +116,11 @@
     },
     "update-infra.sh": {
       "executable": true,
-      "sha256": "d4687f8f57286d023b55185be016306fa9cc536c69fc9d1888316ad078846cfe"
+      "sha256": "bd679d654b9a6b06a53fb2e45d6c02f3dceb1cb574be9c95f7aa1603c104760d"
     }
   },
-  "package_sha256": "3bb028899da80c13e905a6e49ec96fc7a37728dea10c60a6fd9bac1fdea402b6",
+  "package_sha256": "4d0ac45e74fbcfb9faf23f169d08fe16e90df1de003ad51e87c14bd88cd2e818",
   "schema": 1,
   "source_repository": "https://github.com/qubit-ltd/rs-infra-tools.git",
-  "source_revision": "063b18bc8d1b809f22ce41b2c0e4d9f6a98072db"
+  "source_revision": "5345538904e1a47973963679e56d9a20450d1c25"
 }

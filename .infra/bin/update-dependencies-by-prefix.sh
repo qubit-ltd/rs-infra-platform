@@ -7,18 +7,18 @@ dry_run=0
 
 usage() {
     cat <<'EOF'
-用法：.infra/bin/update-dependencies-by-prefix.sh [--project <crate目录>] --prefix <前缀> [--prefix <前缀> ...]
+Usage: .infra/bin/update-dependencies-by-prefix.sh [--project <crate-dir>] --prefix <prefix> [--prefix <prefix> ...]
 
-把项目目录及其子目录中名称匹配任一前缀的 crates.io 直接依赖更新到最新稳定版本对应的 `^major.minor` 要求，忽略 patch。
-保留 features、optional、default-features 等其他依赖设置；Git 和 path 依赖会跳过。
+Update crates.io dependencies in the project directory and its subdirectories whose names match any prefix to the latest stable version's `^major.minor` requirement, ignoring patch versions.
+Preserve other dependency settings such as features, optional, and default-features; skip Git and path dependencies.
 
-选项：
-  --project <目录>  Cargo crate 目录，默认当前目录
-  --prefix <前缀>   crate 名称前缀，可重复指定
-  --dry-run         只显示 Cargo 计划，不写入 Cargo.toml
-  -h, --help        显示帮助
+Options:
+  --project <dir>    Cargo crate directory (default: current directory)
+  --prefix <prefix>  Crate name prefix; may be specified multiple times
+  --dry-run          Show the Cargo plan without modifying Cargo.toml
+  -h, --help         Show this help
 
-示例：
+Examples:
   .infra/bin/update-dependencies-by-prefix.sh --prefix qubit- --prefix rs-
 EOF
 }
@@ -26,7 +26,7 @@ EOF
 add_prefix() {
     local prefix="$1"
     [[ "$prefix" =~ ^[[:alnum:]_-]+$ ]] || {
-        printf '无效的 crate 名称前缀：%s\n' "$prefix" >&2
+        printf 'Invalid crate name prefix: %s\n' "$prefix" >&2
         exit 2
     }
     prefixes+=("$prefix")
@@ -53,22 +53,22 @@ while (($# > 0)); do
             exit 0
             ;;
         *)
-            printf '未知参数：%s\n' "$1" >&2
+            printf 'Unknown argument: %s\n' "$1" >&2
             usage >&2
             exit 2
             ;;
     esac
 done
 
-((${#prefixes[@]} > 0)) || { printf '至少需要一个 --prefix。\n' >&2; usage >&2; exit 2; }
-command -v cargo >/dev/null || { printf '需要 Cargo。\n' >&2; exit 2; }
-command -v jq >/dev/null || { printf '需要 jq。\n' >&2; exit 2; }
-command -v curl >/dev/null || { printf '需要 curl 访问 crates.io。\n' >&2; exit 2; }
-cargo add --help >/dev/null 2>&1 || { printf '当前 Cargo 不支持 cargo add。\n' >&2; exit 2; }
+((${#prefixes[@]} > 0)) || { printf 'At least one --prefix is required.\n' >&2; usage >&2; exit 2; }
+command -v cargo >/dev/null || { printf 'Cargo is required.\n' >&2; exit 2; }
+command -v jq >/dev/null || { printf 'jq is required.\n' >&2; exit 2; }
+command -v curl >/dev/null || { printf 'curl is required to access crates.io.\n' >&2; exit 2; }
+cargo add --help >/dev/null 2>&1 || { printf 'This Cargo version does not support cargo add.\n' >&2; exit 2; }
 
 project_root="$(cd -- "$project_root" && pwd -P)"
 manifest="${project_root}/Cargo.toml"
-[[ -f "$manifest" ]] || { printf '未找到 Cargo.toml：%s\n' "$manifest" >&2; exit 2; }
+[[ -f "$manifest" ]] || { printf 'Cargo.toml not found: %s\n' "$manifest" >&2; exit 2; }
 
 prefix_json="$(printf '%s\n' "${prefixes[@]}" | jq -R . | jq -s .)"
 mapfile -d '' -t manifests < <(
@@ -100,7 +100,7 @@ for manifest in "${manifests[@]}"; do
             dev) args+=(--dev) ;;
             build) args+=(--build) ;;
             normal) ;;
-            *) printf '跳过不支持的依赖类型：%s (%s)\n' "$name" "$kind" >&2; continue ;;
+            *) printf 'Skipping unsupported dependency type: %s (%s)\n' "$name" "$kind" >&2; continue ;;
         esac
         [[ -z "$target" ]] || args+=(--target "$target")
         [[ -z "$rename" ]] || args+=(--rename "$rename")
@@ -108,21 +108,21 @@ for manifest in "${manifests[@]}"; do
             --user-agent 'rs-infra-tools dependency-prefix-updater' \
             "https://crates.io/api/v1/crates/${name}" \
             | jq -er '.crate.max_stable_version // empty')" || {
-            printf '无法获取 %s 在 crates.io 上的最新稳定版本。\n' "$name" >&2
+            printf 'Could not fetch the latest stable version of %s from crates.io.\n' "$name" >&2
             exit 1
         }
         if [[ "$latest_version" =~ ^([0-9]+)\.([0-9]+)\.[0-9]+(\+[0-9A-Za-z.-]+)?$ ]]; then
             requirement="^${BASH_REMATCH[1]}.${BASH_REMATCH[2]}"
         else
-            printf 'crates.io 返回了无法识别的稳定版本：%s %s\n' "$name" "$latest_version" >&2
+            printf 'crates.io returned an unrecognized stable version for %s: %s\n' "$name" "$latest_version" >&2
             exit 1
         fi
-        printf '更新 %s%s：最新稳定版 %s，Cargo 要求 %s\n' \
-            "$name" "${rename:+ (别名：$rename)}" "$latest_version" "$requirement"
+        printf 'Updating %s%s: latest stable version %s, Cargo requirement %s\n' \
+            "$name" "${rename:+ (alias: $rename)}" "$latest_version" "$requirement"
         [[ "$dry_run" -eq 0 ]] || args+=(--dry-run)
         cargo add "${args[@]}" "${name}@${requirement}" --manifest-path "$manifest"
     done
 done
 if ((found == 0)); then
-    printf '没有找到名称匹配前缀且来自 crates.io 的直接依赖。\n'
+    printf 'No direct crates.io dependencies matched the specified prefixes.\n'
 fi

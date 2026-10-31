@@ -103,6 +103,28 @@ run_latest() {
 }
 
 case "$entrypoint" in
+    .infra/bin/bootstrap-update.sh)
+        python_cmd=${RS_INFRA_PYTHON:-python3}
+        command -v "$python_cmd" >/dev/null 2>&1 || {
+            echo "error: Python 3 is required to update infrastructure files" >&2
+            exit 2
+        }
+        if ! "$python_cmd" -c 'import sys; raise SystemExit(sys.version_info < (3, 10))'; then
+            echo "error: Python 3.10 or later is required to update infrastructure files" >&2
+            exit 2
+        fi
+        "$python_cmd" "$shared_root/assets/project-bootstrap/sync.py" \
+            --project-root "$project_root" \
+            --package-root "$shared_root/assets/project-bootstrap" \
+            "$@"
+        update_tools=true
+        for arg in "$@"; do
+            case "$arg" in --dry-run|--status) update_tools=false ;; esac
+        done
+        if [[ "$update_tools" == true ]]; then
+            "$manager_bin" prewarm --project "$project_root"
+        fi
+        ;;
     .infra/bin/align-ci.sh)
         prepare_dependencies
         run_latest rs-infra-style --project "$project_root" fix "$@"
